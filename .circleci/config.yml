@@ -38,7 +38,7 @@ jobs:
           name : Docker Build
           command : |
             echo "$DOCKER_PASS" | docker login harbor.misoboy.kr --username $DOCKER_USER --password-stdin
-            docker build -t harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG /tmp/workspace/output --build-arg APP_COLOR=blue
+            docker build -t harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG /tmp/workspace/output --build-arg APP_COLOR=green
             docker push harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG
   send-webhook:
     executor: spinnaker/default-stretch
