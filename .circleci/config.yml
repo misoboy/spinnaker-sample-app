@@ -52,7 +52,7 @@ jobs:
 
 orbs:
   aws-eks: circleci/aws-eks@0.2.0
-  spinnaker: circleci/spinnaker@x.y.z
+  spinnaker: circleci/spinnaker@0.3.1
 workflows:
   version: 2.1
   workflow:
