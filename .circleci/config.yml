@@ -60,11 +60,17 @@ workflows:
           filters:
             branches:
               only: master
-      - deploy:
+      - approve-deploy:
           type: approval
           requires:
             - build
-      - send-webhook:
+      - deploy:
+          requires:
+            - deploy-hold
+      - send-webhook-hold:
           type: approval
           requires:
             - deploy
+      - approve-send-webhook:
+          requires:
+            - send-webhook-hold
