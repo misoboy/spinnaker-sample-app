@@ -1,0 +1,66 @@
+version: 2.1
+defaults:
+  environment:
+
+jobs:
+  build:
+    docker:
+      - image: maven:3-openjdk-8
+
+    steps:
+      - checkout
+      - run:
+          name: Persist Directory
+          command: |
+            mkdir -p /tmp/workspace/output
+      # run build
+      - run:
+          name : Maven Build
+          command : |
+            mvn clean package -DskipeTests
+            mv target/spinnaker-sample-app-0.0.1-SNAPSHOT.jar /tmp/workspace/output/spinnaker-sample-app-0.0.1-SNAPSHOT.jar
+            mv Dockerfile /tmp/workspace/output/Dockerfile
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - output
+
+  deploy:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      # run deploy
+      - mem/remember:
+          env_var: IMAGE_TAG
+          value: 'spinnaker-sample-app:1.$CIRCLE_BUILD_NUM'
+      - run:
+          name : Docker Build
+          command : |
+            echo "$DOCKER_PASS" | docker login harbor.misoboy.kr --username $DOCKER_USER --password-stdin
+            docker build -t harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG /tmp/workspace/output
+            docker push harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG
+
+  send-webhook:
+    executor: spinnaker/default-stretch
+    steps:
+      - spinnaker/trigger-pipeline-with-webhook:
+          payload: >-
+            {\"status\": \"success\", \"secretKey\": \"$SPINNAKER_WEBHOOK_SECRET_KEY\", \"jobid\": \"$CIRCLE_WORKFLOW_JOB_ID\",
+            \"message\": \"I've got it\", \"parameters\": {\"imageTag\":\"$IMAGE_TAG\"}}
+          webhook-endpoint: $SPINNAKER_WEBHOOK
+
+orbs:
+  aws-eks: circleci/aws-eks@0.2.0
+  spinnaker: circleci/spinnaker@x.y.z
+workflows:
+  version: 2.1
+  workflow:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build
