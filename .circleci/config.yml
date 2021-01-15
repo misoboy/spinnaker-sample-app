@@ -47,7 +47,7 @@ jobs:
           payload: >-
             {\"status\": \"success\", \"secretKey\": \"$SPINNAKER_WEBHOOK_SECRET_KEY\", \"jobid\": \"$CIRCLE_WORKFLOW_JOB_ID\",
             \"message\": \"I've got it\", \"parameters\": {\"imageTag\":\"$IMAGE_TAG\"}}
-          webhook-endpoint: $SPINNAKER_WEBHOOK
+          webhook-endpoint: SPINNAKER_WEBHOOK
 
 orbs:
   spinnaker: circleci/spinnaker@0.3.1
