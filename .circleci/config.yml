@@ -38,7 +38,7 @@ jobs:
           name : Docker Build
           command : |
             echo "$DOCKER_PASS" | docker login harbor.misoboy.kr --username $DOCKER_USER --password-stdin
-            docker build -t harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG /tmp/workspace/output --build-arg APP_COLOR=green
+            docker build -t harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG /tmp/workspace/output --build-arg APP_COLOR=blue
             docker push harbor.misoboy.kr/private-dev-misoboy/$IMAGE_TAG
   send-webhook:
     executor: spinnaker/default-stretch
@@ -62,17 +62,17 @@ workflows:
           filters:
             branches:
               only: master
-      - approve-deploy:
-          type: approval
-          requires:
-            - build
+      #- approve-deploy:
+      #    type: approval
+      #    requires:
+      #      - build
       - deploy:
           requires:
-            - approve-deploy
-      - approve-send-webhook:
-          type: approval
-          requires:
-            - deploy
+            - build
+      #- approve-send-webhook:
+      #    type: approval
+      #    requires:
+      #      - deploy
       - send-webhook:
           requires:
-            - approve-send-webhook
+            - deploy
