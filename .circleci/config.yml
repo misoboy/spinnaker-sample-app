@@ -66,11 +66,11 @@ workflows:
             - build
       - deploy:
           requires:
-            - deploy-hold
-      - send-webhook-hold:
+            - approve-deploy
+      - approve-send-webhook:
           type: approval
           requires:
             - deploy
-      - approve-send-webhook:
+      - send-webhook:
           requires:
-            - send-webhook-hold
+            - approve-send-webhook
